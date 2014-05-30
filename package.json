@@ -1,0 +1,28 @@
+{
+  "name": "chocolatechipjs",
+  "title": "ChocolateChip-JS",
+  "description": "JavaScript library for mobile Web apps",
+  "version": "3.5.0",
+  "homepage": "http://chocolatechip-ui.com",
+  "author": {
+    "name": "Sourcebits Inc. and other contributors"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sourcebit-robertbiggs/chocolatechipjs.git"
+  },
+  "licences": [
+    {
+      "type": "BSD",
+      "url": "https://github.com/sourcebitsllc/chocolatechip-ui/blob/master/BSD-LICENSE.txt"
+    }
+  ],
+  "devDependencies": {
+    "grunt": "~0.4.1",
+    "grunt-contrib-concat": "~0.3.0",
+    "grunt-contrib-uglify": "~0.2.4",
+    "grunt-contrib-copy": "~0.4.1",
+    "grunt-contrib-jshint": "~0.6.4"
+  },
+  "projectPath": ""
+}

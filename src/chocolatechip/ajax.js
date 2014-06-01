@@ -10,7 +10,8 @@
             dataType : ('html', 'json', 'text', 'script', 'xml'),
             headers : {},
             success : callbackForSuccess,
-            error : callbackForError
+            error : callbackForError,
+            context: null
          }
       */
       ajax : function ( options ) {
@@ -30,10 +31,13 @@
             }
          }
          var request = new XMLHttpRequest();
+         var deferred = new $.Deferred();
          var type = o.type || 'get';
          var async  = o.async || false;      
          var params = o.data || null;
+         var context = options.context || deferred;
          request.queryString = params;
+         request.timeout = o.timeout ? o.timeout : 0;
          request.open(type, o.url, async);
          if (!!o.headers) {  
             for (var prop in o.headers) { 
@@ -52,26 +56,31 @@
                if (o.dataType) {
                   if (o.dataType === 'json') {
                      request.handleResp(JSON.parse(request.responseText));
+                     deferred.resolve(context, request, request.responseText);
                   } else {
                      request.handleResp(request.responseText);
+                     deferred.resolve(context, request, request.responseText);
                   }
                } else {
                   request.handleResp(request.responseText);
+                  deferred.resolve(context, request, request.responseText);
                }
             } else if(request.status >= 400) {
                if (!!error) {
                   error(request);
+                  deferred.reject(options.context, request, request.responseText);
                }
             }
          };
+
          if (async) {
             request.onreadystatechange = handleResponse;
-         }
-         request.send(params);
-         if (!async) {
+            request.send(params);
+         } else {
+            request.send(params);
             handleResponse();
          }
-         return this;
+         return deferred;
       },
       
       // Parameters: url, data, success, dataType.
@@ -80,15 +89,15 @@
             return;
          }
          if (!data) {
-            return;
+            return $.ajax({url : url, type: 'GET'}); 
          }
-         if (typeof data === 'function' && !dataType) {
-            if (typeof success === 'string') {
-               dataType = success;
-            }
-            $.ajax({url : url, type: 'GET', success : data, dataType : dataType});
+         if (!dataType) {
+            dataType = null;
+         }
+         if (typeof data === 'function' && !success) {
+            return $.ajax({url : url, type: 'GET', success : data});
          } else if (typeof data === 'object' && typeof success === 'function') {
-            $.ajax({url : url, type: 'GET', data : data, dataType : dataType});
+            return $.ajax({url : url, type: 'GET', data : data, dataType : dataType});
          }
       },
       
@@ -101,23 +110,25 @@
             return;
          }
          if (typeof data === 'function' && !success) {
-            $.ajax({url : url, type: 'GET', success : data, dataType : 'json'});
+            $.ajax({url : url, type: 'GET', async: true, success : data, dataType : 'json'});
          } else if (typeof data === 'object' && typeof success === 'function') {
             $.ajax({url : url, type: 'GET', data : data, dataType : 'json'});
          }
       },
 
       // Parameters: url, callback.
-      JSONP : function ( url, callback ) {
+      JSONP : function ( url, callback, callbackType ) {
          var fn = 'fn_' + $.uuidNum(),
          script = document.createElement('script'),
+         callbackType = callbackType || 'callback=?',
          head = $('head')[0];
          window[fn] = function(data) {
             head.removeChild(script);
             callback && callback(data);
             delete window[fn];
          };
-         script.src = url.replace('callback=?', 'callback=' + fn);
+         var strippedCallbackStr = callbackType.substr(0,callbackType.length-1)
+         script.src = url.replace(callbackType, strippedCallbackStr + fn);
          head.appendChild(script);
       },
       

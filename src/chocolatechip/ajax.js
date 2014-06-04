@@ -120,15 +120,15 @@
       JSONP : function ( url, callback, callbackType ) {
          var fn = 'fn_' + $.uuidNum(),
          script = document.createElement('script'),
-         callbackType = callbackType || 'callback=?',
+         cb = callbackType || 'callback=?',
          head = $('head')[0];
          window[fn] = function(data) {
             head.removeChild(script);
             callback && callback(data);
             delete window[fn];
          };
-         var strippedCallbackStr = callbackType.substr(0,callbackType.length-1)
-         script.src = url.replace(callbackType, strippedCallbackStr + fn);
+         var strippedCallbackStr = cb.substr(0,cb.length-1);
+         script.src = url.replace(cb, strippedCallbackStr + fn);
          head.appendChild(script);
       },
       

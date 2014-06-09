@@ -1,6 +1,6 @@
    $.extend({
  
-      version : '3.0.5',
+      version : VERSION_NUMBER,
       
       libraryName : 'ChocolateChip',
       

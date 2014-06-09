@@ -1,4 +1,4 @@
-   $.extend($, {
+    $.extend($, {
       /*
          options = {
             url : 'the/path/here',

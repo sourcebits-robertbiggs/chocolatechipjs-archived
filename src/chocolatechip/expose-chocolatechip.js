@@ -1,4 +1,5 @@
-   window.$chocolatechip = $;
+
+   window.$chocolatechipjs = $;
    if (typeof window.$ === 'undefined') {
       window.$ = $;
    }

@@ -1,3 +1,4 @@
+
    $.extend($, {   
       // Convert form values into JSON object:
       form2JSON : function(rootNode, delimiter) {

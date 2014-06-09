@@ -1,3 +1,4 @@
+
    $.extend = function(obj, prop, enumerable) {
       enumerable = enumerable || false;
       if (!prop) {

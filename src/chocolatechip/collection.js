@@ -531,6 +531,7 @@
       
       addClass : function ( className ) {
          if (!this.length) return [];
+         if (typeof className !== "string") return;
          var ret = [];
          var classes;
          this.each(function(node) {
@@ -824,68 +825,60 @@
       ancestor : function( selector ) {
          if (!this.length) return [];
          var ret = [];
-         this.each(function(ctx) {
-            if (typeof selector === 'undefined') {
-               return [];
-            }
-            var position = null;
-            var newSelector = null;
-            var p = ctx.parentNode;
-            if (!p) {
-               return [];
-            }
-            if (typeof selector === 'string') {
-               selector.trim();
-            }
-            if (typeof selector === 'number') {
-               position = selector || 1;
-                for (var i = 1; i < position; i++) {
-                   if (p.nodeName === 'HTML') {
-                      return p;
-                   } else {
-                      if (p !== null) {
-                         p = p.parentNode;
-                      }
+         if (typeof selector === 'undefined') {
+            return [];
+         }
+         var el = this[0];
+         var position = null;
+         var newSelector = null;
+         var p = el.parentNode;
+         if (!p) {
+            return [];
+         }
+         if (typeof selector === 'string') {
+            selector.trim();
+         }
+         if (typeof selector === 'number') {
+            position = selector || 1;
+             for (var i = 1; i < position; i++) {
+                if (p.nodeName === 'HTML') {
+                   return p;
+                } else {
+                   if (p !== null) {
+                      p = p.parentNode;
                    }
-                } 
-                ret.push(p);
-            } else if (typeof selector === 'string' && selector.substr(0,1) === '.' ) {
-               newSelector = selector.split('.')[1];
-               if (p.nodeName === 'BODY') {
-                  ret.push(p);
-               }
-               if (p.classList.contains(newSelector)) {
-                  ret.push(p);
-               } else {
-                  ret.push($(p).ancestor(selector)[0]);
-               }
-            } else if (typeof selector === 'string' && selector.substr(0,1) === '#' ) {
-               newSelector = selector.split('#')[1];
-               if (p.getAttribute('id') === newSelector) {
-                  ret.push(p);
-               } else {
-                  ret.push($(p).ancestor(selector)[0]);
-               }
-            } else { 
-               if (p.tagName && (p.tagName.toLowerCase() === selector)) {
-                  ret.push(p);
-               } else {
-                  ret.push($(p).ancestor(selector)[0]);
-               } 
+                }
+             } 
+             ret.push(p);
+         } else if (typeof selector === 'string' && selector.substr(0,1) === '.' ) {
+            newSelector = selector.split('.')[1];
+            if (p.nodeName === 'BODY') {
+               ret.push(p);
             }
-         });
-         ret = ret.unique();
-         if (ret[0] === undefined) return [];
-         return returnResult(ret);
-      }, 
+            if (p.classList.contains(newSelector)) {
+               ret.push(p);
+            } else {
+               ret.push($(p).ancestor(selector)[0]);
+            }
+         } else if (typeof selector === 'string' && selector.substr(0,1) === '#' ) {
+            newSelector = selector.split('#')[1];
+            if (p.getAttribute('id') === newSelector) {
+               ret.push(p);
+            } else {
+               ret.push($(p).ancestor(selector)[0]);
+            }
+         } else { 
+            if (p.tagName && (p.tagName.toLowerCase() === selector)) {
+               ret.push(p);
+            } else {
+               ret.push($(p).ancestor(selector)[0]);
+            } 
+         }
+         return ret;
+      },
       
       closest : function( selector ) {
-         if (!this.length) return [];
-         var ret = [];
-         this.each(function(ctx) {
-            ret.push($(ctx).ancestor(selector)[0]);
-         });
-         return ret.length ? ret : this;
+         return this.ancestor(selector);
       },
       
       siblings : function( selector ) {
@@ -1083,25 +1076,27 @@
          if (key === 'undefined' || key === null) {
             return;
          }
-         if (value) {
+         if (value || value === 0) {
+            var val = value;
             if (!ctx.id) {
                ++$.uuid;
                id = $.makeUuid();
                ctx.setAttribute("id", id);
                $.chch_cache.data[id] = {};
-               $.chch_cache.data[id][key] = value;
+               $.chch_cache.data[id][key] = val;
             } else {
                id = ctx.id;
                if (!$.chch_cache.data[id]) {
                   $.chch_cache.data[id] = {};
-                  $.chch_cache.data[id][key] = value;
+                  $.chch_cache.data[id][key] = val;
                } else {
-                  $.chch_cache.data[id][key] = value;
+                  $.chch_cache.data[id][key] = val;
                }
             }
          } else {
             if (key && id) {
                if (!$.chch_cache.data[id]) return;
+               if ($.chch_cache.data[id][key] === 0) return $.chch_cache.data[id][key];
                if (!$.chch_cache.data[id][key]) return;
                return $.chch_cache.data[id][key];
             }

@@ -1,11 +1,11 @@
 module('Expose $ Tests');
 // 1
 test('$chocolatechip should exist.', function() {
-   equal($.isFunction($chocolatechip), true, '$chocolatechip should be true.');
+   equal($.isFunction($chocolatechipjs), true, '$chocolatechip should be true.');
 });
 // 2
 test('Exposes ChocolateChip\'s $ to the global namespace.', function() {
-   equal($, $chocolatechip, '$ should equal $chocolatechip')
+   equal($, $chocolatechipjs, '$ should equal $chocolatechip')
 });
 // 3
 test('Test name of $ (Should be ChocolateChip).', function() {

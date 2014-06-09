@@ -58,13 +58,13 @@ test('[].data:', function() {
    list.data('fruits', 1);
    result = list.data('fruits');
    equal(result, 1, 'Should return 1.');
-   list.data('zero', '0');
+   list.data('zero', 0);
    result = list.data('zero');
-   equal(result,  $.chch_cache.data['ul'].zero, 'Should return "0".');
-   equal(result, '0', 'Should return "0".');
-   list.data('zero', '0.0');
+   equal(result,  $.chch_cache.data['ul'].zero, 'Should return 0.');
+   equal(result, 0, 'Should return 0.');
+   list.data('zero', 0.0);
    result = list.data('zero');
-   equal(result, '0.0', 'Should return "0".');
+   equal(result, 0.0, 'Should return 0.0.');
    list.data('zero', ['0']);
    result = list.data('zero');
    equal(result, $.chch_cache.data['ul'].zero, "Should return ['0'].");

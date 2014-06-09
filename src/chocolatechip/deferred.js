@@ -1,3 +1,4 @@
+
    $.extend({
       Deferred : function (callback) {
          var status = 'pending';

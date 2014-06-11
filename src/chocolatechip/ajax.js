@@ -15,6 +15,17 @@
          }
       */
       ajax : function ( options ) {
+         // Default settings:
+         var settings = {
+            type: 'GET',
+            beforeSend: $.noop,
+            success: $.noop,
+            error: $.noop,
+            context: null,
+            async: true,
+            timeout: 0
+         };
+         $.extend(settings, options);
          var dataTypes = {
             script: 'text/javascript, application/javascript',
             json:   'application/json',
@@ -22,62 +33,60 @@
             html:   'text/html',
             text:   'text/plain'
          };
-         var o = options ? options : {};
-         var success = null;
-         var error = options.error || $.noop;
-         if (!!options) {
-            if (!!o.success) {
-               success = o.success;
-            }
-         }
-         var request = new XMLHttpRequest();
+         var xhr = new XMLHttpRequest();
          var deferred = new $.Deferred();
-         var type = o.type || 'get';
-         var async  = o.async || false;      
-         var params = o.data || null;
+         var type = settings.type || 'get';
+         var async  = settings.async || false;      
+         var params = settings.data || null;
          var context = options.context || deferred;
-         request.queryString = params;
-         request.timeout = o.timeout ? o.timeout : 0;
-         request.open(type, o.url, async);
-         if (!!o.headers) {  
-            for (var prop in o.headers) { 
-               if(o.headers.hasOwnProperty(prop)) { 
-                  request.setRequestHeader(prop, o.headers[prop]);
+         xhr.queryString = params;
+         xhr.timeout = settings.timeout ? settings.timeout : 0;
+         xhr.open(type, settings.url, async);
+         if (!!settings.headers) {  
+            for (var prop in settings.headers) { 
+               if(settings.headers.hasOwnProperty(prop)) { 
+                  xhr.setRequestHeader(prop, settings.headers[prop]);
                }
             }
          }
-         if (o.dataType) {
-            request.setRequestHeader('Content-Type', dataTypes[o.dataType]);
+         if (settings.dataType) {
+            xhr.setRequestHeader('Content-Type', dataTypes[settings.dataType]);
          }
-         request.handleResp = (success !== null) ? success : $.noop; 
+         xhr.handleResp = settings.success; 
          
          var handleResponse = function() {
-            if(request.status === 0 && request.readyState === 4 || request.status >= 200 && request.status < 300 && request.readyState === 4 || request.status === 304 && request.readyState === 4 ) {
-               if (o.dataType) {
-                  if (o.dataType === 'json') {
-                     request.handleResp(JSON.parse(request.responseText));
-                     deferred.resolve(context, request, request.responseText);
+            if(xhr.status === 0 && xhr.readyState === 4 || xhr.status >= 200 && xhr.status < 300 && xhr.readyState === 4 || xhr.status === 304 && xhr.readyState === 4 ) {
+               if (settings.dataType) {
+                  if (settings.dataType === 'json') {
+                     xhr.handleResp(JSON.parse(xhr.responseText));
+                     deferred.resolve(xhr.responseText, settings.context, xhr);
                   } else {
-                     request.handleResp(request.responseText);
-                     deferred.resolve(context, request, request.responseText);
+                     xhr.handleResp(xhr.responseText);
+                     deferred.resolve(xhr.responseText, settings.context, xhr);
                   }
                } else {
-                  request.handleResp(request.responseText);
-                  deferred.resolve(context, request, request.responseText);
+                  xhr.handleResp(xhr.responseText);
+                  deferred.resolve(xhr.responseText, settings.context, xhr);
                }
-            } else if(request.status >= 400) {
+            } else if(xhr.status >= 400) {
                if (!!error) {
-                  error(request);
-                  deferred.reject(options.context, request, request.responseText);
+                  error(xhr);
+                  deferred.reject(xhr.status, settings.context, xhr);
                }
             }
          };
 
          if (async) {
-            request.onreadystatechange = handleResponse;
-            request.send(params);
+            if (settings.beforeSend !== $.noop) {
+               settings.beforeSend(xhr, settings);
+            }
+            xhr.onreadystatechange = handleResponse;
+            xhr.send(params);
          } else {
-            request.send(params);
+            if (settings.beforeSend !== $.noop) {
+               settings.beforeSend(xhr, settings);
+            }
+            xhr.send(params);
             handleResponse();
          }
          return deferred;

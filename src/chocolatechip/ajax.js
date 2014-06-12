@@ -125,20 +125,50 @@
          }
       },
 
-      // Parameters: url, callback.
-      JSONP : function ( url, callback, callbackType ) {
+      /*
+         // JSONP arguments:
+         var options = {
+            url: 'http:/whatever.com/stuff/here',
+            callback: function() {
+               // do stuff here
+            },
+            callbackType: 'jsonCallback=?',
+            timeout: 5000
+         }
+      */
+      JSONP : function ( options ) {
+         var settings = {
+            url : null,
+            callback: $.noop,
+            callbackType : 'callback=?',
+            timeout: null
+         };
+         $.extend(settings, options);
+         var deferred = new $.Deferred();
          var fn = 'fn_' + $.uuidNum(),
          script = document.createElement('script'),
-         cb = callbackType || 'callback=?',
          head = $('head')[0];
+         console.log(fn);
+         script.setAttribute('id', fn);
+         var startTimeout = new Date();
          window[fn] = function(data) {
             head.removeChild(script);
-            callback && callback(data);
+            settings.callback(data);
+            deferred.resolve(data, 'resolved', settings);
             delete window[fn];
          };
-         var strippedCallbackStr = cb.substr(0,cb.length-1);
-         script.src = url.replace(cb, strippedCallbackStr + fn);
+         var strippedCallbackStr = settings.callbackType.substr(0, settings.callbackType.length-1)
+         script.src = settings.url.replace(settings.callbackType, strippedCallbackStr + fn);
          head.appendChild(script);
+         if (settings.timeout) {
+            var waiting = setTimeout(function() {
+               if (new Date() - startTimeout > 0) {
+                  deferred.reject('timedout', settings);
+                  settings.callback = $.noop;
+               }
+            }, settings.timeout);
+         }
+         return deferred;
       },
       
       // Parameters: url, data, success, dataType.

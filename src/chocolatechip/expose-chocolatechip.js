@@ -1,5 +1,7 @@
-
-   window.$chocolatechipjs = $;
-   if (typeof window.$ === 'undefined') {
-      window.$ = $;
-   }
+(function(){
+  "use strict";
+  window.$chocolatechipjs = $;
+  if (typeof window.$ === 'undefined') {
+    window.$ = $;
+  }
+})();

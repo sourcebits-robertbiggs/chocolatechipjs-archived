@@ -80,6 +80,9 @@ gulp.task('js', function () {
     "src/chocolatechip/deferred.js",
     "src/chocolatechip/expose-chocolatechip.js"
   ])
+
+    .pipe(replace(/^\(function\(\)\{\n  \"use strict\";/img, ''))
+    .pipe(replace(/^\}\)\(\);/img, ''))
     .pipe(concat("chocolatechip-" + pkg.version + ".js"))
     .pipe(header(chuijs_start))
     .pipe(footer(chuijs_end))
